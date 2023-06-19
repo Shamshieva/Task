@@ -16,4 +16,5 @@ public class Gallery {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gallery_gen")
     @SequenceGenerator(name = "gallery_gen", sequenceName = "gallery_seq", allocationSize = 1)
     private Long id;
+    private String image;
 }
