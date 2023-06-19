@@ -16,4 +16,8 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "like_gen")
     @SequenceGenerator(name = "like_gen", sequenceName = "like_seq", allocationSize = 1)
     private Long id;
+    private Boolean isLiked;
+
+    @ManyToOne
+    private User user;
 }
