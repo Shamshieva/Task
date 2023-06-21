@@ -18,10 +18,10 @@ public class RefreshToken {
     @OneToOne
     private User user;
 
-//    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String token;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private Instant expiryDate;
 
 }

@@ -1,5 +1,6 @@
 package com.manas.exceptions.handler;
 
+import com.manas.dto.response.ErrorMessageToken;
 import com.manas.dto.response.ExceptionResponse;
 import com.manas.exceptions.*;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -58,12 +61,13 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(TokenRefreshException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ExceptionResponse tokenRefreshException(TokenRefreshException e){
-        return new ExceptionResponse(
-                HttpStatus.BAD_REQUEST,
-                e.getMessage(),
-                TokenRefreshException.class.getSimpleName());
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorMessageToken handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
+        return new ErrorMessageToken(
+                HttpStatus.FORBIDDEN.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
     }
 }

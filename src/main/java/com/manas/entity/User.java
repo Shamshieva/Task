@@ -23,13 +23,11 @@ public class User implements UserDetails {
     @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", allocationSize = 1)
     private Long id;
     private String fullName;
-    private String photo;
+    private byte[] image;
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToOne
-    private RefreshToken refreshToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

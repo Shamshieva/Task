@@ -1,10 +1,15 @@
 package com.manas.controller;
 
 import com.manas.config.jwt.JwtService;
+import com.manas.dto.request.AuthenticationRequest;
+import com.manas.dto.request.RegisterRequest;
 import com.manas.dto.request.TokenRefreshRequest;
+import com.manas.dto.response.AuthenticationResponse;
 import com.manas.dto.response.TokenRefreshResponse;
 import com.manas.entity.User;
 import com.manas.exceptions.TokenRefreshException;
+import com.manas.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.manas.dto.request.LoginRequest;
 import com.manas.entity.RefreshToken;
 import com.manas.service.RefreshTokenService;
 import com.manas.dto.response.JwtResponse;
@@ -32,30 +36,22 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final UserService userService;
+
+
+    @PostMapping("/signUp")
+    public AuthenticationResponse signUp(@RequestBody @Valid RegisterRequest request){
+        return userService.register(request);
+    }
 
     @PostMapping("/signIn")
-    public ResponseEntity<?> authenticateUser( @RequestBody LoginRequest loginRequest) {
-
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = (User) authentication.getPrincipal();
-
-        String jwt = jwtService.generateToken(user);
-
-        List<String> roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-
-        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken.getToken(), user.getId(), user.getEmail(), roles));
+    public ResponseEntity<?> authenticateUser( @RequestBody AuthenticationRequest request) {
+        return userService.authenticateUser(request);
     }
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
         String requestRefreshToken = request.getRefreshToken();
-
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)

@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.manas.entity.RefreshToken;
 import com.manas.exceptions.TokenRefreshException;
 import com.manas.repository.UserRepository;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import com.manas.repository.RefreshTokenRepository;
 public class RefreshTokenService {
 
 //    @Value("${bezkoder.app.jwtRefreshExpirationMs}")
-    private final Long refreshTokenDurationMs = 7439047207429847932L;
+    private final Long refreshTokenDurationMs = 360000L;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
