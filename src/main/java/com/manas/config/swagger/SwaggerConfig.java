@@ -20,7 +20,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .components(new Components()
                         .addSecuritySchemes(API_KEY, apiKeySecuritySchema()))
-                .info(new Info().title("MedCheck"))
+                .info(new Info().title("Burulai"))
                 .security(Collections.singletonList(new SecurityRequirement().addList(API_KEY)));
     }
 

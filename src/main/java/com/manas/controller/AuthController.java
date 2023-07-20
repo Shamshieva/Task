@@ -33,11 +33,9 @@ import java.util.List;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
-
 
     @PostMapping("/signUp")
     public AuthenticationResponse signUp(@RequestBody @Valid RegisterRequest request){
@@ -45,21 +43,22 @@ public class AuthController {
     }
 
     @PostMapping("/signIn")
-    public ResponseEntity<?> authenticateUser( @RequestBody AuthenticationRequest request) {
-        return userService.authenticateUser(request);
+    public AuthenticationResponse authenticate( @RequestBody AuthenticationRequest request) {
+        return userService.authenticate(request);
     }
 
+//    @PostMapping("/signIn")
+//    public ResponseEntity<?>  authenticate( @RequestBody AuthenticationRequest request) {
+//        return refreshTokenService.authenticateUser(request);
+//    }
+
+
     @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String token = jwtService.generateToken(user);
-                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "Refresh token is not in database!"));
+    public TokenRefreshResponse refreshToken(@RequestBody String requestRefreshToken) {
+        RefreshToken refreshToken = refreshTokenService.findByToken(requestRefreshToken)
+                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!"));
+        refreshTokenService.verifyExpiration(refreshToken);
+        String token = jwtService.generateToken(refreshToken.getUser());
+        return new TokenRefreshResponse(token, requestRefreshToken);
     }
 }

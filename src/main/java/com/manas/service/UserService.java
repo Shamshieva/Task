@@ -9,6 +9,4 @@ public interface UserService {
     AuthenticationResponse register(RegisterRequest request);
 
     AuthenticationResponse authenticate(AuthenticationRequest request);
-
-    public ResponseEntity<?> authenticateUser(AuthenticationRequest request);
 }

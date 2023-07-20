@@ -1,52 +1,20 @@
 package com.manas.service;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.manas.dto.request.AuthenticationRequest;
+import com.manas.dto.response.SimpleResponse;
 import com.manas.entity.RefreshToken;
-import com.manas.exceptions.TokenRefreshException;
-import com.manas.repository.UserRepository;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.manas.repository.RefreshTokenRepository;
-@Service
-@RequiredArgsConstructor
-public class RefreshTokenService {
+import io.micrometer.observation.ObservationFilter;
+import org.springframework.http.ResponseEntity;
 
-//    @Value("${bezkoder.app.jwtRefreshExpirationMs}")
-    private final Long refreshTokenDurationMs = 360000L;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
+import java.util.Optional;
 
-    public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepository.findByToken(token);
-    }
+public interface RefreshTokenService {
+    ResponseEntity<?> authenticateUser(AuthenticationRequest request);
 
-    public RefreshToken createRefreshToken(Long userId) {
-        RefreshToken refreshToken = new RefreshToken();
+    RefreshToken verifyExpiration(RefreshToken token);
 
-        refreshToken.setUser(userRepository.findById(userId).get());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        refreshToken.setToken(UUID.randomUUID().toString());
+    RefreshToken createRefreshToken(Long userId);
 
-        refreshToken = refreshTokenRepository.save(refreshToken);
-        return refreshToken;
-    }
-
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
-            refreshTokenRepository.delete(token);
-            throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signIn request");
-        }
-        return token;
-    }
-
-//    @Transactional
-//    public void deleteByUserId(Long userId) {
-//        refreshTokenRepository.deleteById(userId);
-//    }
+    Optional<RefreshToken> findByToken(String token);
+    SimpleResponse deleteByUserId(Long userId);
 }
